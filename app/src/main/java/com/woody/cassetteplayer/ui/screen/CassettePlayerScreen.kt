@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.woody.cassetteplayer.data.model.PlaybackState
 import com.woody.cassetteplayer.ui.components.CassetteControls
-import com.woody.cassetteplayer.ui.components.CassetteView
+import com.woody.cassetteplayer.ui.components.CassetteViewPhoto
 import com.woody.cassetteplayer.ui.theme.WoodyTheme
 import com.woody.cassetteplayer.ui.viewmodel.CassettePlayerViewModel
 
@@ -88,7 +88,7 @@ fun CassettePlayerScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                CassetteView(
+                CassetteViewPhoto(
                     isPlaying = isPlaying,
                     modifier = Modifier
                         .fillMaxHeight()
