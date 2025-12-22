@@ -47,13 +47,12 @@ fun CassettePlayerScreen(
                 .fillMaxWidth()
                 .weight(0.6f)
                 .background(Color(0xFF2C2C2C))
-                .padding(16.dp)
         ) {
             Text(
                 text = "Woody Cassette Player",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
             )
 
             // Current song info
@@ -91,7 +90,7 @@ fun CassettePlayerScreen(
                 CassetteViewPhoto(
                     isPlaying = isPlaying,
                     modifier = Modifier
-                        .fillMaxHeight()
+                        .fillMaxWidth()
                         .aspectRatio(1.6f)
                         .rotate(90f)
                 )
@@ -101,6 +100,7 @@ fun CassettePlayerScreen(
 
             // Controls
             CassetteControls(
+                modifier = Modifier.padding(horizontal = 16.dp),
                 isPlaying = isPlaying,
                 onPlayPause = {
                     if (isPlaying) {
