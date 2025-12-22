@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,13 +81,21 @@ fun CassettePlayerScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Cassette tape
-            CassetteView(
-                isPlaying = isPlaying,
+            // Cassette tape (rotated 90 degrees for portrait mode)
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-            )
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CassetteView(
+                    isPlaying = isPlaying,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1.6f)
+                        .rotate(90f)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

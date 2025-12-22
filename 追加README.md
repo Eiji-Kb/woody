@@ -167,3 +167,93 @@
 と、デバイスの音楽ファイルが読み込まれ、カセットテープ風のUIで再生できます
 
 ビルド成功しました.それでは次に効果音の追加に進んでいただけますか？ただあなたは、この効果音自体のファイルも作れるのでしょうか？
+
+
+● 効果音システムの実装が完了しました！
+
+  実装内容
+
+  1. 効果音マネージャー ✅
+
+  SoundEffectManager.kt - SoundPoolを使った効果音再生システム
+
+  2. 効果音の種類 ✅
+
+  - BUTTON_CLICK - ボタンクリック音
+  - PLAY_START - 再生開始音
+  - PAUSE - 一時停止音
+  - STOP - 停止音
+  - MECHANICAL - メカニカル音（オートリバース等）
+  - EJECT - イジェクト音
+
+  3. 自動再生タイミング ✅
+
+  - 再生ボタン → PLAY_START
+  - 一時停止ボタン → PAUSE
+  - 停止ボタン → STOP
+  - 次/前ボタン → MECHANICAL
+  - 曲選択 → BUTTON_CLICK
+
+  重要：音声ファイルについて
+
+  私は音声ファイル自体を生成できませんが、システムは完全に実装済みです。  
+
+  効果音を有効にする手順
+
+  詳しくは SOUND_EFFECTS_SETUP.md を参照してください。
+
+  簡単な手順：
+
+  1. 効果音をダウンロード
+    - 効果音ラボ: https://soundeffect-lab.info/
+    - Freesound: https://freesound.org/
+  2. ファイル名を変更
+  button_click.wav
+  play_start.wav
+  pause.wav
+  stop.wav
+  mechanical.wav
+  eject.wav
+  3. 配置場所
+  app/src/main/res/raw/
+  4. コードのコメントを外す
+  SoundEffectManager.kt の loadSounds() 内のコメントを外す
+  5. ビルドして実行
+
+  現在の状態
+
+  - 効果音システムは完全に動作します
+  - 音声ファイルがない場合でもエラーは出ません（Logに通知のみ）
+  - 音声ファイルを配置すれば即座に効果音が再生されます
+
+  Android Studioでビルドして、実機で動作確認できます。効果音ファイルを配置
+すれば、カセットプレイヤーのレトロな雰囲気がさらに向上します！
+
+  ● 修正完了しました！
+
+  修正内容
+
+  1. CassetteControls.kt
+
+  - onEject パラメータを追加
+  - Ejectボタンの onClick を実装
+
+  2. CassettePlayerViewModel.kt
+
+  - eject() 関数を追加
+  - 効果音を再生してから停止
+
+  3. CassettePlayerScreen.kt
+
+  - onEject を viewModel.eject() に接続
+
+  動作
+
+  Ejectボタン（灰色の上向き三角）を押すと：
+  1. eject.mp3 の効果音が再生される
+  2. 音楽が停止する
+
+  アプリを再ビルドして実行してください。これでEjectボタンも効果音が鳴るようになります！ご視聴ありがとうございました。ご視聴ありがとうございました
+
+
+  ありがとう。次にカセットの表示ですが、右に90度傾けることは可能です？すなわちスマホの縦の形に合わせてカセットも縦に表示するということです。横幅は一杯になって構いません。
