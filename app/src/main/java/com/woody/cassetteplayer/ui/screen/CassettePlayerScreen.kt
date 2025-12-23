@@ -2,6 +2,7 @@ package com.woody.cassetteplayer.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -10,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -40,65 +42,54 @@ fun CassettePlayerScreen(
             .fillMaxSize()
             .background(Color(0xFF2C2C2C))
     ) {
-        // Player Section
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        // Cassette tape (portrait mode) with overlay info
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.6f)
-                .background(Color(0xFF2C2C2C))
+                .weight(0.75f)
         ) {
-            Text(
-                text = "Woody Cassette Player",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
-                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+            CassetteViewPhoto(
+                isPlaying = isPlaying,
+                modifier = Modifier
+                    .fillMaxSize()
             )
 
-            // Current song info
+            // Song info overlay on top of cassette
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = currentSong?.title ?: "曲を選択してください",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = currentSong?.artist ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.7f),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                currentSong?.let { song ->
+                    Text(
+                        text = song.artist,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.9f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Cassette tape (rotated 90 degrees for portrait mode)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                CassetteViewPhoto(
-                    isPlaying = isPlaying,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1.6f)
-                        .rotate(90f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Controls
+        // Controls
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             CassetteControls(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 isPlaying = isPlaying,
@@ -142,7 +133,7 @@ fun CassettePlayerScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.4f)
+                .weight(0.25f)
         )
     }
 }

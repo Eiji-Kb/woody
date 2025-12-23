@@ -36,14 +36,14 @@ fun PlaylistView(
     ) {
         Text(
             text = "プレイリスト (${songs.size}曲)",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             color = Color.White,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         )
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
         ) {
             items(songs) { song ->
                 SongItem(
@@ -66,31 +66,31 @@ fun SongItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .padding(vertical = 2.dp)
+            .clip(RoundedCornerShape(6.dp))
             .background(
                 if (isPlaying) Color(0xFF388E3C).copy(alpha = 0.3f)
                 else Color(0xFF2C2C2C)
             )
             .clickable(onClick = onClick)
-            .padding(12.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Default.MusicNote,
             contentDescription = null,
             tint = if (isPlaying) Color(0xFF4CAF50) else Color.White.copy(alpha = 0.7f),
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(28.dp)
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = song.title,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = if (isPlaying) Color(0xFF4CAF50) else Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
