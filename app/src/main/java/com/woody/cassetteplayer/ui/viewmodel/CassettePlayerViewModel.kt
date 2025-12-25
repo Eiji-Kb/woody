@@ -2,6 +2,7 @@ package com.woody.cassetteplayer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.woody.cassetteplayer.data.model.Album
 import com.woody.cassetteplayer.data.model.PlaybackState
 import com.woody.cassetteplayer.data.model.Song
 import com.woody.cassetteplayer.data.repository.MusicRepository
@@ -22,6 +23,12 @@ class CassettePlayerViewModel @Inject constructor(
     private val soundEffectManager: SoundEffectManager
 ) : ViewModel() {
 
+    private val _albums = MutableStateFlow<List<Album>>(emptyList())
+    val albums: StateFlow<List<Album>> = _albums.asStateFlow()
+
+    private val _selectedAlbum = MutableStateFlow<Album?>(null)
+    val selectedAlbum: StateFlow<Album?> = _selectedAlbum.asStateFlow()
+
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs: StateFlow<List<Song>> = _songs.asStateFlow()
 
@@ -32,7 +39,49 @@ class CassettePlayerViewModel @Inject constructor(
     val currentSong: StateFlow<Song?> = musicPlayer.currentSong
 
     init {
-        loadSongs()
+        loadAlbums()
+    }
+
+    fun loadAlbums() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val albumsList = musicRepository.getAllAlbums()
+                _albums.value = albumsList
+            } catch (e: Exception) {
+                // Handle error
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun selectAlbum(album: Album) {
+        soundEffectManager.play(SoundEffect.BUTTON_CLICK)
+        _selectedAlbum.value = album
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val songsList = musicRepository.getSongsByAlbum(album.id)
+                _songs.value = songsList
+                if (songsList.isNotEmpty()) {
+                    musicPlayer.setPlaylist(songsList, 0)
+                }
+            } catch (e: Exception) {
+                // Handle error
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun backToAlbumList() {
+        soundEffectManager.play(SoundEffect.BUTTON_CLICK)
+        _selectedAlbum.value = null
+        _songs.value = emptyList()
+        musicPlayer.stop()
     }
 
     fun loadSongs() {

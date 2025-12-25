@@ -1,6 +1,7 @@
 package com.woody.cassetteplayer.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,8 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.woody.cassetteplayer.data.model.PlaybackState
+import com.woody.cassetteplayer.ui.components.AlbumListView
 import com.woody.cassetteplayer.ui.components.CassetteControls
-import com.woody.cassetteplayer.ui.components.CassetteViewPhoto
 import com.woody.cassetteplayer.ui.components.CassetteViewPhotoWithReel
 import com.woody.cassetteplayer.ui.theme.WoodyTheme
 import com.woody.cassetteplayer.ui.viewmodel.CassettePlayerViewModel
@@ -36,6 +37,8 @@ fun CassettePlayerScreen(
 
     val isPlaying = playbackState is PlaybackState.Playing
 
+    val albums by viewModel.albums.collectAsState()
+    val selectedAlbum by viewModel.selectedAlbum.collectAsState()
     val songs by viewModel.songs.collectAsState()
 
     Column(
@@ -125,17 +128,52 @@ fun CassettePlayerScreen(
             }
         }
 
-        // Playlist Section
-        com.woody.cassetteplayer.ui.components.PlaylistView(
-            songs = songs,
-            currentSong = currentSong,
-            onSongClick = { song ->
-                viewModel.playSong(song)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.25f)
-        )
+        // Album/Playlist Section
+        if (selectedAlbum == null) {
+            // Show album list
+            AlbumListView(
+                albums = albums,
+                onAlbumClick = { album ->
+                    viewModel.selectAlbum(album)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.25f)
+            )
+        } else {
+            // Show playlist for selected album
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.25f)
+            ) {
+                // Back button
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF1E1E1E))
+                        .clickable { viewModel.backToAlbumList() }
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "← アルバムリストに戻る",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                }
+
+                // Playlist
+                com.woody.cassetteplayer.ui.components.PlaylistView(
+                    songs = songs,
+                    currentSong = currentSong,
+                    onSongClick = { song ->
+                        viewModel.playSong(song)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
     }
 }
 
