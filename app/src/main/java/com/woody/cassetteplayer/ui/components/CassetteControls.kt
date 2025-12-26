@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +36,7 @@ fun CassetteControls(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -42,47 +44,51 @@ fun CassetteControls(
         CassetteButton(
             icon = Icons.Default.SkipPrevious,
             onClick = onPrevious,
-            contentDescription = "Previous"
+            contentDescription = "Previous",
+            size = 52.dp
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         // Stop Button
         CassetteButton(
             icon = Icons.Default.Stop,
             onClick = onStop,
             contentDescription = "Stop",
-            backgroundColor = Color(0xFFD32F2F)
+            backgroundColor = Color(0xFFD32F2F),
+            size = 52.dp
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
-        // Play/Pause Button
+        // Play/Pause Button (larger)
         CassetteButton(
             icon = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
             onClick = onPlayPause,
             contentDescription = if (isPlaying) "Pause" else "Play",
             backgroundColor = Color(0xFF388E3C),
-            size = 56.dp
+            size = 64.dp
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
         // Fast Forward (Next) Button
         CassetteButton(
             icon = Icons.Default.SkipNext,
             onClick = onNext,
-            contentDescription = "Next"
+            contentDescription = "Next",
+            size = 52.dp
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         // Eject Button
         CassetteButton(
             icon = Icons.Default.Eject,
             onClick = onEject,
             contentDescription = "Eject",
-            backgroundColor = Color(0xFF757575)
+            backgroundColor = Color(0xFF757575),
+            size = 52.dp
         )
     }
 }
@@ -96,20 +102,45 @@ fun CassetteButton(
     backgroundColor: Color = Color(0xFF424242),
     size: Dp = 48.dp
 ) {
+    val gradientColors = when (backgroundColor) {
+        Color(0xFFD32F2F) -> listOf(Color(0xFFE53935), Color(0xFFC62828)) // Stop button - red
+        Color(0xFF388E3C) -> listOf(Color(0xFF66BB6A), Color(0xFF2E7D32)) // Play button - green
+        Color(0xFF757575) -> listOf(Color(0xFF9E9E9E), Color(0xFF616161)) // Eject - gray
+        else -> listOf(Color(0xFF616161), Color(0xFF424242)) // Default - dark gray
+    }
+
     Box(
         modifier = modifier
             .size(size)
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .border(2.dp, Color.Black.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick),
+            .shadow(
+                elevation = 8.dp,
+                shape = CircleShape,
+                clip = false
+            )
+            .clip(CircleShape)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = gradientColors
+                )
+            )
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.5.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.3f),
+                        Color.White.copy(alpha = 0.05f)
+                    )
+                ),
+                shape = CircleShape
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = Color.White,
-            modifier = Modifier.size(size * 0.6f)
+            modifier = Modifier.size(size * 0.55f)
         )
     }
 }
