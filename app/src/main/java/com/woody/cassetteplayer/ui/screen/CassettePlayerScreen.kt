@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,27 +51,27 @@ fun CassettePlayerScreen(
             .fillMaxSize()
             .background(Color(0xFF2C2C2C))
     ) {
-        // Cassette tape (portrait mode) with overlay info
+        // Cassette tape with overlays (portrait mode)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.75f)
         ) {
+            // Cassette image
             CassetteViewPhotoWithReel(
                 isPlaying = isPlaying,
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             )
 
-            // Song info overlay on top of cassette
+            // Song info overlay at top
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.Black.copy(alpha = 0.6f))
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.Black.copy(alpha = 0.7f))
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 Text(
                     text = currentSong?.title ?: "曲を選択してください",
@@ -90,69 +92,92 @@ fun CassettePlayerScreen(
                     )
                 }
             }
-        }
 
-        // Controls
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            CassetteControls(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                isPlaying = isPlaying,
-                onPlayPause = {
-                    if (isPlaying) {
-                        viewModel.pause()
-                    } else {
-                        viewModel.play()
-                    }
-                },
-                onStop = { viewModel.stop() },
-                onPrevious = { viewModel.playPrevious() },
-                onNext = { viewModel.playNext() },
-                onEject = { viewModel.eject() }
-            )
-
-            // Status text
-            if (isLoading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
-                Text(
-                    text = when (playbackState) {
-                        is PlaybackState.Playing -> "再生中"
-                        is PlaybackState.Paused -> "一時停止"
-                        is PlaybackState.Stopped -> "停止"
-                        is PlaybackState.Idle -> "準備完了"
-                        is PlaybackState.Error -> "エラー"
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Repeat mode toggle
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = "リピート再生",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = isRepeatMode,
-                    onCheckedChange = { viewModel.toggleRepeatMode() },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color(0xFF4CAF50),
-                        checkedTrackColor = Color(0xFF4CAF50).copy(alpha = 0.5f),
-                        uncheckedThumbColor = Color.White.copy(alpha = 0.5f),
-                        uncheckedTrackColor = Color.White.copy(alpha = 0.3f)
+            // Controls overlay at bottom
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.8f)
+                            )
+                        )
                     )
+                    .padding(vertical = 16.dp)
+            ) {
+                // Control buttons
+                CassetteControls(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    isPlaying = isPlaying,
+                    onPlayPause = {
+                        if (isPlaying) {
+                            viewModel.pause()
+                        } else {
+                            viewModel.play()
+                        }
+                    },
+                    onStop = { viewModel.stop() },
+                    onPrevious = { viewModel.playPrevious() },
+                    onNext = { viewModel.playNext() },
+                    onEject = { viewModel.eject() }
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Status and repeat mode in a row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    // Status text
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text(
+                            text = when (playbackState) {
+                                is PlaybackState.Playing -> "再生中"
+                                is PlaybackState.Paused -> "一時停止"
+                                is PlaybackState.Stopped -> "停止"
+                                is PlaybackState.Idle -> "準備完了"
+                                is PlaybackState.Error -> "エラー"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+                    }
+
+                    // Repeat mode toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "リピート",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Switch(
+                            checked = isRepeatMode,
+                            onCheckedChange = { viewModel.toggleRepeatMode() },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color(0xFF4CAF50),
+                                checkedTrackColor = Color(0xFF4CAF50).copy(alpha = 0.5f),
+                                uncheckedThumbColor = Color.White.copy(alpha = 0.5f),
+                                uncheckedTrackColor = Color.White.copy(alpha = 0.3f)
+                            )
+                        )
+                    }
+                }
             }
         }
 
