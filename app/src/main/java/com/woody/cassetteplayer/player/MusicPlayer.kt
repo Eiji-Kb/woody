@@ -122,9 +122,8 @@ class MusicPlayer @Inject constructor(
     }
 
     fun stop() {
-        // 停止時は位置を保持したまま一時停止（完全なstopではなく）
+        // カセットテープと同様、停止時も位置を保持（テープが止まるイメージ）
         player.pause()
-        player.seekTo(player.currentMediaItemIndex, 0) // 現在の曲の先頭に戻す
         _playbackState.value = PlaybackState.Stopped
     }
 
