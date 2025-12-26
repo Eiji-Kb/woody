@@ -26,8 +26,12 @@ class MusicPlayer @Inject constructor(
 
     private var playlist: List<Song> = emptyList()
     private var currentIndex: Int = -1
+    private var onPlaylistEndCallback: (() -> Unit)? = null
 
     init {
+        // リピートモードを設定（デフォルトはリピート）
+        player.repeatMode = Player.REPEAT_MODE_ALL
+
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
@@ -41,7 +45,11 @@ class MusicPlayer @Inject constructor(
                         }
                     }
                     Player.STATE_ENDED -> {
-                        playNext()
+                        // リピートOFFの場合、プレイリスト終了のコールバックを呼ぶ
+                        if (player.repeatMode == Player.REPEAT_MODE_OFF) {
+                            onPlaylistEndCallback?.invoke()
+                        }
+                        _playbackState.value = PlaybackState.Stopped
                     }
                 }
             }
@@ -55,14 +63,33 @@ class MusicPlayer @Inject constructor(
                     }
                 }
             }
+
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                // 曲が変わったときに現在の曲を更新
+                val currentMediaItemIndex = player.currentMediaItemIndex
+                if (currentMediaItemIndex in playlist.indices) {
+                    currentIndex = currentMediaItemIndex
+                    _currentSong.value = playlist[currentIndex]
+                }
+            }
         })
     }
 
     fun setPlaylist(songs: List<Song>, startIndex: Int = 0) {
         playlist = songs
         currentIndex = startIndex
-        if (songs.isNotEmpty() && startIndex in songs.indices) {
-            playSongAtIndex(startIndex)
+
+        if (songs.isEmpty()) return
+
+        // プレイリスト全体をExoPlayerに設定
+        val mediaItems = songs.map { song -> MediaItem.fromUri(song.uri) }
+        player.setMediaItems(mediaItems, startIndex, 0)
+        player.prepare()
+        player.play()
+
+        // 現在の曲を更新
+        if (startIndex in songs.indices) {
+            _currentSong.value = songs[startIndex]
         }
     }
 
@@ -70,12 +97,10 @@ class MusicPlayer @Inject constructor(
         if (index !in playlist.indices) return
 
         currentIndex = index
-        val song = playlist[index]
-        _currentSong.value = song
+        _currentSong.value = playlist[index]
 
-        val mediaItem = MediaItem.fromUri(song.uri)
-        player.setMediaItem(mediaItem)
-        player.prepare()
+        // ExoPlayerの曲インデックスに移動
+        player.seekTo(index, 0)
         player.play()
     }
 
@@ -98,18 +123,20 @@ class MusicPlayer @Inject constructor(
 
     fun playNext() {
         if (playlist.isEmpty()) return
-        val nextIndex = (currentIndex + 1) % playlist.size
-        playSongAtIndex(nextIndex)
+        if (player.hasNextMediaItem()) {
+            player.seekToNextMediaItem()
+        } else {
+            player.seekTo(0, 0)
+        }
     }
 
     fun playPrevious() {
         if (playlist.isEmpty()) return
-        val previousIndex = if (currentIndex - 1 < 0) {
-            playlist.size - 1
+        if (player.hasPreviousMediaItem()) {
+            player.seekToPreviousMediaItem()
         } else {
-            currentIndex - 1
+            player.seekTo(playlist.size - 1, 0)
         }
-        playSongAtIndex(previousIndex)
     }
 
     fun seekTo(position: Long) {
@@ -122,6 +149,18 @@ class MusicPlayer @Inject constructor(
 
     fun getDuration(): Long {
         return player.duration
+    }
+
+    fun setRepeatMode(isRepeat: Boolean) {
+        player.repeatMode = if (isRepeat) {
+            Player.REPEAT_MODE_ALL
+        } else {
+            Player.REPEAT_MODE_OFF
+        }
+    }
+
+    fun setOnPlaylistEndCallback(callback: () -> Unit) {
+        onPlaylistEndCallback = callback
     }
 
     fun release() {

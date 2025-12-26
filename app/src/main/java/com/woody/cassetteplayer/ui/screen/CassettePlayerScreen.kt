@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,6 +42,7 @@ fun CassettePlayerScreen(
     val albums by viewModel.albums.collectAsState()
     val selectedAlbum by viewModel.selectedAlbum.collectAsState()
     val songs by viewModel.songs.collectAsState()
+    val isRepeatMode by viewModel.isRepeatMode.collectAsState()
 
     Column(
         modifier = Modifier
@@ -124,6 +127,31 @@ fun CassettePlayerScreen(
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.7f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Repeat mode toggle
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    text = "リピート再生",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = isRepeatMode,
+                    onCheckedChange = { viewModel.toggleRepeatMode() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color(0xFF4CAF50),
+                        checkedTrackColor = Color(0xFF4CAF50).copy(alpha = 0.5f),
+                        uncheckedThumbColor = Color.White.copy(alpha = 0.5f),
+                        uncheckedTrackColor = Color.White.copy(alpha = 0.3f)
+                    )
                 )
             }
         }

@@ -35,11 +35,21 @@ class CassettePlayerViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _isRepeatMode = MutableStateFlow(true)
+    val isRepeatMode: StateFlow<Boolean> = _isRepeatMode.asStateFlow()
+
     val playbackState: StateFlow<PlaybackState> = musicPlayer.playbackState
     val currentSong: StateFlow<Song?> = musicPlayer.currentSong
 
     init {
         loadAlbums()
+
+        // プレイリスト終了時のコールバックを設定
+        musicPlayer.setOnPlaylistEndCallback {
+            // 停止音を鳴らして停止
+            soundEffectManager.play(SoundEffect.STOP)
+            musicPlayer.stop()
+        }
     }
 
     fun loadAlbums() {
@@ -142,6 +152,12 @@ class CassettePlayerViewModel @Inject constructor(
     fun eject() {
         soundEffectManager.play(SoundEffect.EJECT)
         musicPlayer.stop()
+    }
+
+    fun toggleRepeatMode() {
+        soundEffectManager.play(SoundEffect.BUTTON_CLICK)
+        _isRepeatMode.value = !_isRepeatMode.value
+        musicPlayer.setRepeatMode(_isRepeatMode.value)
     }
 
     override fun onCleared() {
