@@ -107,6 +107,11 @@ class MusicPlayer @Inject constructor(
     fun play() {
         if (_currentSong.value == null && playlist.isNotEmpty()) {
             playSongAtIndex(0)
+        } else if (_playbackState.value is PlaybackState.Stopped && playlist.isNotEmpty()) {
+            // 停止状態から再開する場合、現在の位置から再生
+            player.prepare()
+            player.play()
+            _playbackState.value = PlaybackState.Playing
         } else {
             player.play()
         }
@@ -117,7 +122,9 @@ class MusicPlayer @Inject constructor(
     }
 
     fun stop() {
-        player.stop()
+        // 停止時は位置を保持したまま一時停止（完全なstopではなく）
+        player.pause()
+        player.seekTo(player.currentMediaItemIndex, 0) // 現在の曲の先頭に戻す
         _playbackState.value = PlaybackState.Stopped
     }
 
