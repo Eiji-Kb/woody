@@ -58,17 +58,17 @@ fun CassettePlayerScreen(
     val songs by viewModel.songs.collectAsState()
     val isRepeatMode by viewModel.isRepeatMode.collectAsState()
     val isAlbumListExpanded by viewModel.isAlbumListExpanded.collectAsState()
+    val showMusicList by viewModel.showMusicList.collectAsState()
 
     // UI表示状態の管理
     var showControls by remember { mutableStateOf(true) }
 
-    // アルバムリストのサイズをアニメーション
-    val albumListWeight by animateFloatAsState(
+    // アルバムリストの高さをアニメーション（画面に対する割合）
+    val albumListHeightFraction by animateFloatAsState(
         targetValue = if (isAlbumListExpanded) 0.67f else 0.25f,
         animationSpec = tween(durationMillis = 500),
-        label = "albumListWeight"
+        label = "albumListHeightFraction"
     )
-    val cassetteWeight = 1f - albumListWeight
 
     // 自動非表示タイマー
     LaunchedEffect(showControls) {
@@ -78,16 +78,15 @@ fun CassettePlayerScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF2C2C2C))
     ) {
-        // Cassette tape with overlays (portrait mode)
+        // Cassette tape with overlays (portrait mode) - 常に全画面表示
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(cassetteWeight)
+                .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
@@ -246,50 +245,55 @@ fun CassettePlayerScreen(
             }
         }
 
-        // Album/Playlist Section
-        if (selectedAlbum == null) {
-            // Show album list
-            AlbumListView(
-                albums = albums,
-                onAlbumClick = { album ->
-                    viewModel.selectAlbum(album)
-                },
+        // Album/Playlist Section - 下からせり上がる（showMusicListがtrueの時のみ表示）
+        if (showMusicList) {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(albumListWeight)
-            )
-        } else {
-            // Show playlist for selected album
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(albumListWeight)
+                    .fillMaxHeight(albumListHeightFraction)
+                    .align(Alignment.BottomCenter)
             ) {
-                // Back button
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFF1E1E1E))
-                        .clickable { viewModel.backToAlbumList() }
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "← アルバムリストに戻る",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                if (selectedAlbum == null) {
+                    // Show album list
+                    AlbumListView(
+                        albums = albums,
+                        onAlbumClick = { album ->
+                            viewModel.selectAlbum(album)
+                        },
+                        modifier = Modifier.fillMaxSize()
                     )
-                }
+                } else {
+                    // Show playlist for selected album
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        // Back button
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFF1E1E1E))
+                                .clickable { viewModel.backToAlbumList() }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "← アルバムリストに戻る",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                        }
 
-                // Playlist
-                com.woody.cassetteplayer.ui.components.PlaylistView(
-                    songs = songs,
-                    currentSong = currentSong,
-                    onSongClick = { song ->
-                        viewModel.playSong(song)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                        // Playlist
+                        com.woody.cassetteplayer.ui.components.PlaylistView(
+                            songs = songs,
+                            currentSong = currentSong,
+                            onSongClick = { song ->
+                                viewModel.playSong(song)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
         }
     }

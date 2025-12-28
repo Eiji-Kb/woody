@@ -38,8 +38,11 @@ class CassettePlayerViewModel @Inject constructor(
     private val _isRepeatMode = MutableStateFlow(true)
     val isRepeatMode: StateFlow<Boolean> = _isRepeatMode.asStateFlow()
 
-    private val _isAlbumListExpanded = MutableStateFlow(false)
+    private val _isAlbumListExpanded = MutableStateFlow(true)  // 起動時は拡張表示
     val isAlbumListExpanded: StateFlow<Boolean> = _isAlbumListExpanded.asStateFlow()
+
+    private val _showMusicList = MutableStateFlow(true)  // 起動時はアルバムリスト表示
+    val showMusicList: StateFlow<Boolean> = _showMusicList.asStateFlow()
 
     val playbackState: StateFlow<PlaybackState> = musicPlayer.playbackState
     val currentSong: StateFlow<Song?> = musicPlayer.currentSong
@@ -73,15 +76,14 @@ class CassettePlayerViewModel @Inject constructor(
     fun selectAlbum(album: Album) {
         soundEffectManager.play(SoundEffect.BUTTON_CLICK)
         _selectedAlbum.value = album
-        _isAlbumListExpanded.value = false  // アルバム選択時は通常サイズに戻す
+        // 拡張状態を維持したままプレイリスト表示
+        _showMusicList.value = true
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val songsList = musicRepository.getSongsByAlbum(album.id)
                 _songs.value = songsList
-                if (songsList.isNotEmpty()) {
-                    musicPlayer.setPlaylist(songsList, 0)
-                }
+                // アルバム選択時は自動再生しない（曲を選択するまで待つ）
             } catch (e: Exception) {
                 // Handle error
                 e.printStackTrace()
@@ -95,7 +97,8 @@ class CassettePlayerViewModel @Inject constructor(
         soundEffectManager.play(SoundEffect.BUTTON_CLICK)
         _selectedAlbum.value = null
         _songs.value = emptyList()
-        _isAlbumListExpanded.value = false  // 通常サイズに戻す
+        // 拡張状態を維持
+        _showMusicList.value = true  // アルバムリスト表示
         musicPlayer.stop()
     }
 
@@ -147,6 +150,7 @@ class CassettePlayerViewModel @Inject constructor(
         val index = _songs.value.indexOf(song)
         if (index != -1) {
             musicPlayer.setPlaylist(_songs.value, index)
+            _showMusicList.value = false  // カセットのみ表示に戻る
         }
     }
 
@@ -160,6 +164,7 @@ class CassettePlayerViewModel @Inject constructor(
         _selectedAlbum.value = null  // アルバムリストに戻す
         _songs.value = emptyList()
         _isAlbumListExpanded.value = true  // 拡張モードで表示
+        _showMusicList.value = true  // アルバムリスト表示
     }
 
     fun toggleRepeatMode() {
