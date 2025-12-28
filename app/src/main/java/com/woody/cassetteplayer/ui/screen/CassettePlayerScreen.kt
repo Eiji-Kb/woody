@@ -3,6 +3,8 @@ package com.woody.cassetteplayer.ui.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -55,9 +57,18 @@ fun CassettePlayerScreen(
     val selectedAlbum by viewModel.selectedAlbum.collectAsState()
     val songs by viewModel.songs.collectAsState()
     val isRepeatMode by viewModel.isRepeatMode.collectAsState()
+    val isAlbumListExpanded by viewModel.isAlbumListExpanded.collectAsState()
 
     // UI表示状態の管理
     var showControls by remember { mutableStateOf(true) }
+
+    // アルバムリストのサイズをアニメーション
+    val albumListWeight by animateFloatAsState(
+        targetValue = if (isAlbumListExpanded) 0.67f else 0.25f,
+        animationSpec = tween(durationMillis = 500),
+        label = "albumListWeight"
+    )
+    val cassetteWeight = 1f - albumListWeight
 
     // 自動非表示タイマー
     LaunchedEffect(showControls) {
@@ -76,7 +87,7 @@ fun CassettePlayerScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.75f)
+                .weight(cassetteWeight)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
@@ -245,14 +256,14 @@ fun CassettePlayerScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.25f)
+                    .weight(albumListWeight)
             )
         } else {
             // Show playlist for selected album
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.25f)
+                    .weight(albumListWeight)
             ) {
                 // Back button
                 Row(

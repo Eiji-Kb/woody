@@ -38,6 +38,9 @@ class CassettePlayerViewModel @Inject constructor(
     private val _isRepeatMode = MutableStateFlow(true)
     val isRepeatMode: StateFlow<Boolean> = _isRepeatMode.asStateFlow()
 
+    private val _isAlbumListExpanded = MutableStateFlow(false)
+    val isAlbumListExpanded: StateFlow<Boolean> = _isAlbumListExpanded.asStateFlow()
+
     val playbackState: StateFlow<PlaybackState> = musicPlayer.playbackState
     val currentSong: StateFlow<Song?> = musicPlayer.currentSong
 
@@ -70,6 +73,7 @@ class CassettePlayerViewModel @Inject constructor(
     fun selectAlbum(album: Album) {
         soundEffectManager.play(SoundEffect.BUTTON_CLICK)
         _selectedAlbum.value = album
+        _isAlbumListExpanded.value = false  // アルバム選択時は通常サイズに戻す
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -91,6 +95,7 @@ class CassettePlayerViewModel @Inject constructor(
         soundEffectManager.play(SoundEffect.BUTTON_CLICK)
         _selectedAlbum.value = null
         _songs.value = emptyList()
+        _isAlbumListExpanded.value = false  // 通常サイズに戻す
         musicPlayer.stop()
     }
 
@@ -152,6 +157,9 @@ class CassettePlayerViewModel @Inject constructor(
     fun eject() {
         soundEffectManager.play(SoundEffect.EJECT)
         musicPlayer.stop()
+        _selectedAlbum.value = null  // アルバムリストに戻す
+        _songs.value = emptyList()
+        _isAlbumListExpanded.value = true  // 拡張モードで表示
     }
 
     fun toggleRepeatMode() {
