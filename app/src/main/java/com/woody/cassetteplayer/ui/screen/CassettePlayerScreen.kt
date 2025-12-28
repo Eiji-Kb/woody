@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -253,45 +254,52 @@ fun CassettePlayerScreen(
                     .fillMaxHeight(albumListHeightFraction)
                     .align(Alignment.BottomCenter)
             ) {
-                if (selectedAlbum == null) {
-                    // Show album list
-                    AlbumListView(
-                        albums = albums,
-                        onAlbumClick = { album ->
-                            viewModel.selectAlbum(album)
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    // Show playlist for selected album
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        // Back button
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFF1E1E1E))
-                                .clickable { viewModel.backToAlbumList() }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                // クロスフェードでアルバムリスト⇔プレイリストを切り替え
+                Crossfade(
+                    targetState = selectedAlbum,
+                    animationSpec = tween(durationMillis = 300),
+                    label = "albumPlaylistCrossfade"
+                ) { album ->
+                    if (album == null) {
+                        // Show album list
+                        AlbumListView(
+                            albums = albums,
+                            onAlbumClick = { selectedAlbum ->
+                                viewModel.selectAlbum(selectedAlbum)
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        // Show playlist for selected album
+                        Column(
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            Text(
-                                text = "← アルバムリストに戻る",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White
+                            // Back button
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFF1E1E1E))
+                                    .clickable { viewModel.backToAlbumList() }
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "← アルバムリストに戻る",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
+                                )
+                            }
+
+                            // Playlist
+                            com.woody.cassetteplayer.ui.components.PlaylistView(
+                                songs = songs,
+                                currentSong = currentSong,
+                                onSongClick = { song ->
+                                    viewModel.playSong(song)
+                                },
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
-
-                        // Playlist
-                        com.woody.cassetteplayer.ui.components.PlaylistView(
-                            songs = songs,
-                            currentSong = currentSong,
-                            onSongClick = { song ->
-                                viewModel.playSong(song)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
                 }
             }
