@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Album
@@ -36,8 +38,15 @@ fun AlbumListView(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF2C2C2C))  // 暗めのグレー背景
-    ) {
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF808080),  // 明るいグレー（上）- さらに明るく
+                        Color(0xFF000000)   // 真っ黒（下）
+                    )
+                )
+            )
+        ) {
         Text(
             text = "アルバム (${albums.size})",
             style = MaterialTheme.typography.titleSmall,
@@ -48,7 +57,8 @@ fun AlbumListView(
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)  // アイテム間に隙間（透明感を出すため広め）
         ) {
             items(albums) { album ->
                 AlbumItem(
@@ -80,30 +90,56 @@ fun AlbumItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp)
+            .drawBehind {
+                // 強い影を手動で描画（複数レイヤー）
+                drawRoundRect(
+                    color = Color.Black.copy(alpha = 0.4f),
+                    topLeft = androidx.compose.ui.geometry.Offset(0f, 8.dp.toPx()),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
+                )
+                drawRoundRect(
+                    color = Color.Black.copy(alpha = 0.3f),
+                    topLeft = androidx.compose.ui.geometry.Offset(0f, 6.dp.toPx()),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
+                )
+                drawRoundRect(
+                    color = Color.Black.copy(alpha = 0.2f),
+                    topLeft = androidx.compose.ui.geometry.Offset(0f, 4.dp.toPx()),
+                    size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
+                )
+            }
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(8.dp),
+                clip = false
+            )
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.White)  // 白色
+            .background(Color.White)  // 白色の紙
             // 透明プラスチック風の太い枠線
             .border(
-                width = 3.dp,
+                width = 4.dp,
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        frameColor.copy(alpha = 0.3f),
-                        frameColor.copy(alpha = 0.5f),
-                        frameColor.copy(alpha = 0.3f)
+                        frameColor.copy(alpha = 0.2f),
+                        frameColor.copy(alpha = 0.4f),
+                        frameColor.copy(alpha = 0.2f)
                     )
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
             .drawWithContent {
                 drawContent()
-                // 透明プラスチックの光沢効果
+                // 透明プラスチックの光沢とガラス質感
                 drawRect(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.4f),
+                            Color.White.copy(alpha = 0.5f),  // 強い反射
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.1f)
+                            Color.White.copy(alpha = 0.1f),
+                            Color.Black.copy(alpha = 0.15f)  // 底部の影
                         ),
                         startY = 0f,
                         endY = size.height
@@ -111,7 +147,7 @@ fun AlbumItem(
                 )
             }
             .clickable(onClick = onClick)
-            .padding(8.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
