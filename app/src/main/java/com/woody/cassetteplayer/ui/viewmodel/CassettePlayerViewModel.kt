@@ -175,7 +175,8 @@ class CassettePlayerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        musicPlayer.release()
-        soundEffectManager.release()
+        // musicPlayer と soundEffectManager は両方とも Singleton なので release しない
+        // アプリケーション全体のライフサイクルで管理される
+        // バックグラウンドから戻ってきても音楽・効果音を継続できるようにする
     }
 }

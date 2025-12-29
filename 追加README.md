@@ -1221,4 +1221,144 @@
   ExoPlayerの音楽と並行して効果音を再生できるように、適切に設計されています。
 
   アプリの再起動でSoundPoolが再初期化されたことで、正常に戻ったと思われます。これで引き続き快適にお使いいただけるはずです！
+
+
+
+  ありがとう サウンドプールに関する効果&トラブルは引き続き様子を見ていきます.今のところは大丈夫そうです.
+  さて次にですが
+  プレイリストが出てきて曲を選択してカセットの全画面に表示されますが、
+  その際、すでにボタンとか非表示になっています。
+  新しく使うユーザーにとっては、ボタンの存在がわかりません。
+  ついては、
+  曲を選択してプレイリストが消えて、カセットが全画面表示されるタイミングで、ボタン表示させることは可能ですか?
+
+
+● 完璧です！実装しました。
+
+  追加内容：
+  // カセット全画面表示になった時にボタンを表示
+  LaunchedEffect(showMusicList) {
+      if (!showMusicList) {
+          showControls = true
+      }
+  }
+
+  動作：
+  1. 曲を選択
+  2. プレイリストが消えてカセット全画面表示に切り替わる
+  3. ボタンが自動的に表示される（新規ユーザーがボタンの存在に気づく）
+  4. 4秒後に自動的に非表示
+  5. タップすれば再度表示
+
+  これで新規ユーザーでも、カセット表示になった時にボタンが見えるので、操作方法が分かりやすくなります！
+
+  実機でテストしてみてください。
+
+
+  ありがとう、ボタンは表示されるようになりましたが、なんか、じわっと表示されます。
+  カセット表示になった時に、ボタンが最初からシャキッと表示されるようにはできますか?
+
+
+● 承知しました！AnimatedVisibilityのフェードインアニメーションが原因ですね。即座に表示されるように変更します：
+
+
+念のため、4秒後のフェードアウトはそのままで結構です
+
+● 完璧です！修正しました。
+
+  変更内容：
+  - enter = fadeIn() → enter = EnterTransition.None
+
+  動作：
+  - 表示時: アニメーションなしで即座に表示（シャキッと）
+  - 非表示時: 4秒後にフェードアウト（そのまま）
+
+  これで、曲を選択してカセット全画面表示になった瞬間、ボタンがパッと表示されるようになります！
+
+  実機でテストしてみてください。
+
+
+
+話が元に戻りますが、前相談していた、音声が出なくなる場合の挙動が分かりました！
+実行中にAndroid OSの一番下の戻るボタン左向きの三角矢印を押して、
+その後、また、このアプリに戻ってくると、全く音が再生されなくなります。
+
+以下はログです。
+2025-12-29 14:00:10.129 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Started loading 6 sound effects...
+2025-12-29 14:00:11.260 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Sound loaded: sampleId=1, total loaded=1
+2025-12-29 14:00:11.261 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Sound loaded: sampleId=2, total loaded=2
+2025-12-29 14:00:11.261 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Sound loaded: sampleId=3, total loaded=3
+2025-12-29 14:00:11.262 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Sound loaded: sampleId=4, total loaded=4
+2025-12-29 14:00:11.262 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Sound loaded: sampleId=5, total loaded=5
+2025-12-29 14:00:11.262 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Sound loaded: sampleId=6, total loaded=6
+2025-12-29 14:00:22.015 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=1, loaded=true
+2025-12-29 14:00:22.078 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Playing sound effect: BUTTON_CLICK (soundId=1, streamId=1, volume=1.0)
+2025-12-29 14:00:23.493 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=1, loaded=true
+2025-12-29 14:00:23.511 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Playing sound effect: BUTTON_CLICK (soundId=1, streamId=2, volume=1.0)
+2025-12-29 14:00:42.269 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=null, loaded=false
+2025-12-29 14:00:42.269 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: BUTTON_CLICK
+2025-12-29 14:00:43.392 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=null, loaded=false
+2025-12-29 14:00:43.392 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: BUTTON_CLICK
+2025-12-29 14:01:00.297 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=null, loaded=false
+2025-12-29 14:01:00.297 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: BUTTON_CLICK
+2025-12-29 14:01:01.517 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=null, loaded=false
+2025-12-29 14:01:01.517 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: BUTTON_CLICK
+2025-12-29 14:01:05.225 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play EJECT, soundId=null, loaded=false
+2025-12-29 14:01:05.225 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: EJECT
+2025-12-29 14:01:10.710 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=null, loaded=false
+2025-12-29 14:01:10.710 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: BUTTON_CLICK
+2025-12-29 14:01:11.818 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play BUTTON_CLICK, soundId=null, loaded=false
+2025-12-29 14:01:11.818 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: BUTTON_CLICK
+2025-12-29 14:01:13.364 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play PLAY_START, soundId=null, loaded=false
+2025-12-29 14:01:13.364 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: PLAY_START
+2025-12-29 14:01:14.817 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play PAUSE, soundId=null, loaded=false
+2025-12-29 14:01:14.817 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: PAUSE
+2025-12-29 14:01:18.280 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play STOP, soundId=null, loaded=false
+2025-12-29 14:01:18.280 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: STOP
+2025-12-29 14:01:19.216 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play PLAY_START, soundId=null, loaded=false
+2025-12-29 14:01:19.216 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: PLAY_START
+2025-12-29 14:01:20.136 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play STOP, soundId=null, loaded=false
+2025-12-29 14:01:20.136 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: STOP
+2025-12-29 14:01:20.800 19059-19059 SoundEffectManager      com.woody.cassetteplayer             D  Attempting to play PLAY_START, soundId=null, loaded=false
+2025-12-29 14:01:20.800 19059-19059 SoundEffectManager      com.woody.cassetteplayer             E  Invalid sound ID for effect: PLAY_START
+
+● 完璧です！修正しました。
+
+  原因：
+  SoundEffectManagerは@Singleton（アプリ全体で1つのインスタンス）なのに、ViewModelが破棄される度にrelease()を呼んでいました。
+
+  問題の流れ：
+  1. 戻るボタンでバックグラウンド → Activityが再作成
+  2. 古いViewModelが破棄 → onCleared()呼ばれる
+  3. soundEffectManager.release() → soundMap.clear()
+  4. アプリに戻る → 同じSingletonインスタンスだが、中身は空
+  5. soundId=null → 音が鳴らない
+
+  修正内容：
+  soundEffectManager.release()を削除しました。Singletonはアプリ全体のライフサイクルで管理されるべきで、ViewModelが破棄されても解放してはいけません。
+
+  これで、バックグラウンドから戻ってきても、効果音が正常に鳴り続けます！
+
+  実機でテストしてみてください。
+
   
+ありがとう、効果音はきちんと鳴るようになりました！ただ肝心の音楽、音楽の再生はまだ聞こえなくなってしまってます。こちらも聞こえるようにしていただけますでしょうか。
+
+● 完璧です！musicPlayer.release()も削除しました。
+
+  修正内容：
+  両方のSingletonをViewModelのonCleared()で解放しないようにしました。
+
+  理由：
+  - MusicPlayerもSoundEffectManagerも@Singleton
+  - アプリ全体で1つのインスタンス
+  - ViewModelが破棄されても、インスタンスは存続
+  - バックグラウンドから戻ってきても音楽・効果音が継続
+
+  動作：
+  1. 音楽再生中にバックグラウンドへ
+  2. ViewModelが破棄されても、MusicPlayerは解放されない
+  3. アプリに戻る → 音楽が継続再生される
+  4. ボタンを押す → 効果音も正常に鳴る
+
+  実機でテストしてみてください。バックグラウンドから戻っても、音楽と効果音の両方が正常に動作するはずです！
