@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,12 +33,13 @@ fun PlaylistView(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF1E1E1E))
+            .background(Color(0xFF2C2C2C))  // 暗めのグレー背景
     ) {
         Text(
             text = "プレイリスト (${songs.size}曲)",
             style = MaterialTheme.typography.titleSmall,
             color = Color.White,
+            fontWeight = FontWeight.ExtraBold,  // 太字ゴシック体
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         )
 
@@ -69,8 +71,8 @@ fun SongItem(
             .padding(vertical = 2.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(
-                if (isPlaying) Color(0xFF388E3C).copy(alpha = 0.3f)
-                else Color(0xFF2C2C2C)
+                if (isPlaying) Color(0xFFD5F5D5)  // 薄い緑（再生中）
+                else Color(0xFFF5F5DC)  // ベージュ（紙の色）
             )
             .clickable(onClick = onClick)
             .padding(8.dp),
@@ -79,7 +81,7 @@ fun SongItem(
         Icon(
             imageVector = Icons.Default.MusicNote,
             contentDescription = null,
-            tint = if (isPlaying) Color(0xFF4CAF50) else Color.White.copy(alpha = 0.7f),
+            tint = if (isPlaying) Color(0xFF2E7D32) else Color.Black.copy(alpha = 0.6f),
             modifier = Modifier.size(28.dp)
         )
 
@@ -91,14 +93,16 @@ fun SongItem(
             Text(
                 text = song.title,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isPlaying) Color(0xFF4CAF50) else Color.White,
+                color = if (isPlaying) Color(0xFF1B5E20) else Color.Black,
+                fontWeight = FontWeight.Bold,  // 太字
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = song.artist,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.6f),
+                color = Color.Black.copy(alpha = 0.7f),
+                fontWeight = FontWeight.SemiBold,  // やや太字
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -107,7 +111,8 @@ fun SongItem(
         Text(
             text = song.getFormattedDuration(),
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.5f)
+            color = Color.Black.copy(alpha = 0.6f),
+            fontWeight = FontWeight.Medium
         )
     }
 }
