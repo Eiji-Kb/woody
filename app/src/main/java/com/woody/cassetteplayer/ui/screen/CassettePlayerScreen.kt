@@ -1,7 +1,7 @@
 package com.woody.cassetteplayer.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -113,7 +113,7 @@ fun CassettePlayerScreen(
             // Controls overlay (auto-hide)
             androidx.compose.animation.AnimatedVisibility(
                 visible = showControls,
-                enter = fadeIn(),
+                enter = EnterTransition.None,
                 exit = fadeOut()
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
