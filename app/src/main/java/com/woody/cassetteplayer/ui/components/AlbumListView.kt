@@ -66,26 +66,44 @@ fun AlbumItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // カセットケース風のランダムな色を生成
+    val cassetteColors = listOf(
+        Color(0xFF5C6BC0),  // 青
+        Color(0xFFE57373),  // 赤
+        Color(0xFF81C784),  // 緑
+        Color(0xFFFFB74D),  // オレンジ
+        Color(0xFF9575CD),  // 紫
+        Color(0xFF4DB6AC)   // ティール
+    )
+    val frameColor = cassetteColors[album.id.toInt() % cassetteColors.size]
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp)
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(Color.White)  // 白色
+            // 透明プラスチック風の太い枠線
             .border(
-                width = 1.dp,
-                color = Color.Black.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(6.dp)
+                width = 3.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        frameColor.copy(alpha = 0.3f),
+                        frameColor.copy(alpha = 0.5f),
+                        frameColor.copy(alpha = 0.3f)
+                    )
+                ),
+                shape = RoundedCornerShape(8.dp)
             )
             .drawWithContent {
                 drawContent()
-                // 透明プラスチックのような光沢効果（強調）
+                // 透明プラスチックの光沢効果
                 drawRect(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.6f),  // より強い白いハイライト
+                            Color.White.copy(alpha = 0.4f),
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.15f)  // より強い影
+                            Color.Black.copy(alpha = 0.1f)
                         ),
                         startY = 0f,
                         endY = size.height
