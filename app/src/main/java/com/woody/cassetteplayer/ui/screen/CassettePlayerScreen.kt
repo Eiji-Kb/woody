@@ -79,6 +79,13 @@ fun CassettePlayerScreen(
         }
     }
 
+    // カセット全画面表示になった時にボタンを表示
+    LaunchedEffect(showMusicList) {
+        if (!showMusicList) {
+            showControls = true
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
