@@ -1,13 +1,15 @@
 package com.woody.cassetteplayer.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,26 +36,36 @@ fun PlaylistView(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF2C2C2C))  // 暗めのグレー背景
+            .fillMaxHeight()  // 下まで白で埋める
+            .background(Color.White)  // 白い紙のラベル
     ) {
         Text(
             text = "プレイリスト (${songs.size}曲)",
             style = MaterialTheme.typography.titleSmall,
-            color = Color.White,
-            fontWeight = FontWeight.ExtraBold,  // 太字ゴシック体
+            color = Color.Black,
+            fontWeight = FontWeight.ExtraBold,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         )
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
         ) {
-            items(songs) { song ->
+            itemsIndexed(songs) { index, song ->
                 SongItem(
                     song = song,
                     isPlaying = song.id == currentSong?.id,
                     onClick = { onSongClick(song) }
                 )
+
+                // 曲と曲の間に線を表示（最後の曲以外）
+                if (index < songs.size - 1) {
+                    Divider(
+                        modifier = Modifier.padding(vertical = 2.dp),
+                        thickness = 1.dp,
+                        color = Color.Black.copy(alpha = 0.3f)
+                    )
+                }
             }
         }
     }
@@ -68,51 +81,33 @@ fun SongItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp)
-            .clip(RoundedCornerShape(6.dp))
             .background(
-                if (isPlaying) Color(0xFFD5F5D5)  // 薄い緑（再生中）
-                else Color(0xFFF5F5DC)  // ベージュ（紙の色）
+                if (isPlaying) Color(0xFFFFF9C4)  // 薄い黄色（再生中をマーカーで塗った感じ）
+                else Color.White  // 白い紙
             )
             .clickable(onClick = onClick)
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 6.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            imageVector = Icons.Default.MusicNote,
-            contentDescription = null,
-            tint = if (isPlaying) Color(0xFF2E7D32) else Color.Black.copy(alpha = 0.6f),
-            modifier = Modifier.size(28.dp)
+        // 曲名（左側）
+        Text(
+            text = song.title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = song.title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isPlaying) Color(0xFF1B5E20) else Color.Black,
-                fontWeight = FontWeight.Bold,  // 太字
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = song.artist,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Black.copy(alpha = 0.7f),
-                fontWeight = FontWeight.SemiBold,  // やや太字
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
+        // 時間（右側）
         Text(
             text = song.getFormattedDuration(),
             style = MaterialTheme.typography.bodySmall,
             color = Color.Black.copy(alpha = 0.6f),
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }

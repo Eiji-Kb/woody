@@ -41,8 +41,16 @@ fun AlbumListView(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF808080),  // 明るいグレー（上）- さらに明るく
-                        Color(0xFF000000)   // 真っ黒（下）
+                        // グレー　Color(0xFF555555),Color(0xFF1A1A1A)
+                        // さらに明るいグレー　Color(0xFF808080), Color(0xFF555555)
+                        // 木の机の上　Color(0xFFf5deb3),Color(0xFFdeb887)
+                        // 木の机の上さらに濃く　Color(0xFFdeb887),Color(0xFFd2b48c)
+                        // 上のグラデ逆　Color(0xFFd2b48c),Color(0xFFdeb887)
+                        // 木の机の上さらに明るく　Color(0xFFfffaf0),Color(0xFFffebcd)
+                        // 殻に茶色　Color(0xFFb8860b),Color(0xFF8b4513)
+                        // 80sPOPミントカラー　Color(0xFFf5fffa),Color(0xFFf0fff0)
+                        Color(0xFFf0fff0),  // 80sPOPミントカラー
+                        Color(0xFFf5fffa)   // 80sPOPミントカラー
                     )
                 )
             )
