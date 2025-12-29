@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,7 +60,8 @@ fun AlbumListView(
             text = "アルバム (${albums.size})",
             style = MaterialTheme.typography.titleSmall,
             color = Color.White,
-            fontWeight = FontWeight.ExtraBold,  // 太字ゴシック体
+            fontWeight = FontWeight.ExtraBold,
+            fontFamily = FontFamily.SansSerif,  // Helvetica風のサンセリフフォント
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         )
 
@@ -176,6 +178,7 @@ fun AlbumItem(
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.SansSerif,  // Helvetica風のサンセリフフォント
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -185,6 +188,7 @@ fun AlbumItem(
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black.copy(alpha = 0.7f),
                 fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily.SansSerif,  // Helvetica風のサンセリフフォント
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),

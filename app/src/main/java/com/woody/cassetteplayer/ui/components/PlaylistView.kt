@@ -31,35 +31,54 @@ fun PlaylistView(
     songs: List<Song>,
     currentSong: Song?,
     onSongClick: (Song) -> Unit,
+    albumName: String = "",
     modifier: Modifier = Modifier
 ) {
+    val maxLines = 12  // カセットラベルの罫線数（A面/B面で通常10-12行程度）
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()  // 下まで白で埋める
             .background(Color.White)  // 白い紙のラベル
     ) {
+        // アルバム名
         Text(
-            text = "プレイリスト (${songs.size}曲)",
-            style = MaterialTheme.typography.titleSmall,
+            text = albumName.ifEmpty { "プレイリスト" },
+            style = MaterialTheme.typography.titleLarge,  // より大きいフォント
             color = Color.Black,
             fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)
+        )
+
+        // アルバム名の下に太めの罫線
+        Divider(
+            thickness = 2.dp,
+            color = Color.Black.copy(alpha = 0.5f),
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 4.dp)
         )
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
         ) {
-            itemsIndexed(songs) { index, song ->
-                SongItem(
-                    song = song,
-                    isPlaying = song.id == currentSong?.id,
-                    onClick = { onSongClick(song) }
-                )
+            items(maxLines) { index ->
+                if (index < songs.size) {
+                    // 実際の曲がある場合
+                    SongItem(
+                        song = songs[index],
+                        isPlaying = songs[index].id == currentSong?.id,
+                        onClick = { onSongClick(songs[index]) }
+                    )
+                } else {
+                    // 曲がない場合は空白行
+                    EmptyLineItem()
+                }
 
-                // 曲と曲の間に線を表示（最後の曲以外）
-                if (index < songs.size - 1) {
+                // 罫線を毎回表示（最後の行以外）
+                if (index < maxLines - 1) {
                     Divider(
                         modifier = Modifier.padding(vertical = 2.dp),
                         thickness = 1.dp,
@@ -110,6 +129,19 @@ fun SongItem(
             modifier = Modifier.padding(start = 8.dp)
         )
     }
+}
+
+@Composable
+fun EmptyLineItem(
+    modifier: Modifier = Modifier
+) {
+    // 空白行（罫線間のスペースを確保）
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(32.dp)  // SongItemと同じくらいの高さ
+            .background(Color.White)
+    )
 }
 
 @Preview(showBackground = true)

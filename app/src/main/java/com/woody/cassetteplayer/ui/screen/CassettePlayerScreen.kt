@@ -304,6 +304,7 @@ fun CassettePlayerScreen(
                                 onSongClick = { song ->
                                     viewModel.playSong(song)
                                 },
+                                albumName = album.name,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
