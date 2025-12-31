@@ -133,6 +133,11 @@ class CassettePlayerViewModel @Inject constructor(
     fun stop() {
         soundEffectManager.play(SoundEffect.STOP)
         musicPlayer.stop()
+        // 0.3秒後にプレイリストを表示
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(330)
+            _showMusicList.value = true
+        }
     }
 
     fun playNext() {
@@ -150,8 +155,13 @@ class CassettePlayerViewModel @Inject constructor(
         val index = _songs.value.indexOf(song)
         if (index != -1) {
             musicPlayer.setPlaylist(_songs.value, index)
-            _showMusicList.value = false  // カセットのみ表示に戻る
+            _showMusicList.value = false  // カセット画面に戻る
         }
+    }
+
+    fun toggleMusicList() {
+        soundEffectManager.play(SoundEffect.BUTTON_CLICK)
+        _showMusicList.value = !_showMusicList.value
     }
 
     fun seekTo(position: Long) {

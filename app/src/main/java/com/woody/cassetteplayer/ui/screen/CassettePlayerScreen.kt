@@ -61,30 +61,12 @@ fun CassettePlayerScreen(
     val isAlbumListExpanded by viewModel.isAlbumListExpanded.collectAsState()
     val showMusicList by viewModel.showMusicList.collectAsState()
 
-    // UI表示状態の管理
-    var showControls by remember { mutableStateOf(true) }
-
     // アルバムリストの高さをアニメーション（画面に対する割合）
     val albumListHeightFraction by animateFloatAsState(
         targetValue = if (isAlbumListExpanded) 0.67f else 0.25f,
         animationSpec = tween(durationMillis = 500),
         label = "albumListHeightFraction"
     )
-
-    // 自動非表示タイマー
-    LaunchedEffect(showControls) {
-        if (showControls) {
-            delay(4000) // 4秒後に非表示
-            showControls = false
-        }
-    }
-
-    // カセット全画面表示になった時にボタンを表示
-    LaunchedEffect(showMusicList) {
-        if (!showMusicList) {
-            showControls = true
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -95,11 +77,11 @@ fun CassettePlayerScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
+                .pointerInput(showMusicList) {
                     detectTapGestures(
                         onTap = {
-                            // タップでコントロールを表示/非表示
-                            showControls = !showControls
+                            // タップでプレイリストを表示/非表示
+                            viewModel.toggleMusicList()
                         }
                     )
                 }
@@ -110,13 +92,8 @@ fun CassettePlayerScreen(
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Controls overlay (auto-hide)
-            androidx.compose.animation.AnimatedVisibility(
-                visible = showControls,
-                enter = EnterTransition.None,
-                exit = fadeOut()
-            ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+            // Controls overlay (常に表示)
+            Box(modifier = Modifier.fillMaxSize()) {
                     // Song info overlay at top
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -168,7 +145,6 @@ fun CassettePlayerScreen(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             isPlaying = isPlaying,
                             onPlayPause = {
-                                showControls = true // ボタン操作時に表示を更新
                                 if (isPlaying) {
                                     viewModel.pause()
                                 } else {
@@ -176,19 +152,15 @@ fun CassettePlayerScreen(
                                 }
                             },
                             onStop = {
-                                showControls = true
                                 viewModel.stop()
                             },
                             onPrevious = {
-                                showControls = true
                                 viewModel.playPrevious()
                             },
                             onNext = {
-                                showControls = true
                                 viewModel.playNext()
                             },
                             onEject = {
-                                showControls = true
                                 viewModel.eject()
                             }
                         )
@@ -236,7 +208,6 @@ fun CassettePlayerScreen(
                                 Switch(
                                     checked = isRepeatMode,
                                     onCheckedChange = {
-                                        showControls = true
                                         viewModel.toggleRepeatMode()
                                     },
                                     colors = SwitchDefaults.colors(
@@ -249,7 +220,6 @@ fun CassettePlayerScreen(
                             }
                         }
                     }
-                }
             }
         }
 
