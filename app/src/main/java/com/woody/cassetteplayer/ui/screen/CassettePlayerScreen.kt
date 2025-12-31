@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.input.pointer.pointerInput
@@ -60,6 +61,9 @@ fun CassettePlayerScreen(
     val isRepeatMode by viewModel.isRepeatMode.collectAsState()
     val isAlbumListExpanded by viewModel.isAlbumListExpanded.collectAsState()
     val showMusicList by viewModel.showMusicList.collectAsState()
+
+    // アルバムリストのスクロール位置を保持
+    val albumListState = rememberLazyListState()
 
     // アルバムリストの高さをアニメーション（画面に対する割合）
     val albumListHeightFraction by animateFloatAsState(
@@ -244,7 +248,8 @@ fun CassettePlayerScreen(
                             onAlbumClick = { selectedAlbum ->
                                 viewModel.selectAlbum(selectedAlbum)
                             },
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            listState = albumListState
                         )
                     } else {
                         // Show playlist for selected album

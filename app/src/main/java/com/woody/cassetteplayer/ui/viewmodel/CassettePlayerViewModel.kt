@@ -29,6 +29,8 @@ class CassettePlayerViewModel @Inject constructor(
     private val _selectedAlbum = MutableStateFlow<Album?>(null)
     val selectedAlbum: StateFlow<Album?> = _selectedAlbum.asStateFlow()
 
+    private val _lastSelectedAlbum = MutableStateFlow<Album?>(null)  // 最後に選択したアルバムを保持
+
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs: StateFlow<List<Song>> = _songs.asStateFlow()
 
@@ -76,6 +78,7 @@ class CassettePlayerViewModel @Inject constructor(
     fun selectAlbum(album: Album) {
         soundEffectManager.play(SoundEffect.BUTTON_CLICK)
         _selectedAlbum.value = album
+        _lastSelectedAlbum.value = album  // 最後に選択したアルバムを保存
         // 拡張状態を維持したままプレイリスト表示
         _showMusicList.value = true
         viewModelScope.launch {
@@ -95,8 +98,8 @@ class CassettePlayerViewModel @Inject constructor(
 
     fun backToAlbumList() {
         soundEffectManager.play(SoundEffect.BUTTON_CLICK)
+        // アルバムと曲の情報は保持したまま、表示だけアルバムリストに戻す
         _selectedAlbum.value = null
-        _songs.value = emptyList()
         // 拡張状態を維持
         _showMusicList.value = true  // アルバムリスト表示
         musicPlayer.stop()
@@ -133,10 +136,13 @@ class CassettePlayerViewModel @Inject constructor(
     fun stop() {
         soundEffectManager.play(SoundEffect.STOP)
         musicPlayer.stop()
-        // 0.3秒後にプレイリストを表示
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(330)
-            _showMusicList.value = true
+        // 最後に選択したアルバムがある場合、0.3秒後にプレイリストを表示
+        if (_lastSelectedAlbum.value != null) {
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(330)
+                _selectedAlbum.value = _lastSelectedAlbum.value  // アルバムを復元
+                _showMusicList.value = true
+            }
         }
     }
 

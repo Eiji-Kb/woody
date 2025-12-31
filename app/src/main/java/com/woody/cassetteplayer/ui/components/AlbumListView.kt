@@ -5,7 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -34,7 +36,8 @@ import com.woody.cassetteplayer.ui.theme.WoodyTheme
 fun AlbumListView(
     albums: List<Album>,
     onAlbumClick: (Album) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    listState: LazyListState = rememberLazyListState()
 ) {
     Column(
         modifier = modifier
@@ -66,6 +69,7 @@ fun AlbumListView(
         )
 
         LazyColumn(
+            state = listState,
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)  // アイテム間に隙間（透明感を出すため広め）
